@@ -21,11 +21,6 @@ protocol HeaderControllerDelegate {
 
 class HeaderController: UIViewController {
     
-    let tableView: UITableView = {
-        let tv = UITableView(frame: .zero)
-        return tv
-    }()
-    
     // Status bar
     
     var isHiddenStatusBar: Bool = false {
@@ -51,19 +46,25 @@ class HeaderController: UIViewController {
         return .fade
     }
     
-    let maxHeight: CGFloat = 255
-    let medHeight: CGFloat = 85 // 55 del height + 10 padding superior + 10 de padding inferior + 10 statusbar
-    let minHeight: CGFloat = 0
+    // Properties
+    
+    let tableView: UITableView = {
+        let tv = UITableView(frame: .zero)
+        return tv
+    }()
+    
+    let maxHeight: CGFloat = 300
+    let medHeight: CGFloat = 135 // 55 del height + 10 padding superior + 10 de padding inferior + 10 statusbar
+    let minHeight: CGFloat = 65 // 55 height del menu + 10 padding
     var previousScroll: CGFloat = 0
     var currentHeaderSize: HeaderSizes = .max
     var currentHeaderHeight: NSLayoutConstraint?
-    
     
     lazy var headerView: HeaderView = {
        let hv = HeaderView(maxHeight: self.maxHeight, medHeight: self.medHeight, minHeight: self.minHeight, paddingBetween: 10)
         return hv
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -157,14 +158,11 @@ extension HeaderController: UITableViewDataSource, UITableViewDelegate {
     
     func updateHeader() {
         let range = maxHeight - medHeight
-        print(range)
-        print("Current \(currentHeaderHeight!.constant)")
-        print(" Diferencia: \(currentHeaderHeight!.constant - medHeight)")
         let percent = (currentHeaderHeight!.constant - medHeight) / range
-        headerView.updateHeader(percentage: percent)
+        headerView.updateHeader(percentage: percent, currentHeaderHeight: currentHeaderHeight!.constant)
         
         // Status bar
-        isHiddenStatusBar = currentHeaderHeight!.constant < (medHeight / 2) && currentHeaderHeight!.constant > 0 ? true : false
+        isHiddenStatusBar = currentHeaderHeight!.constant < (medHeight / 2) && currentHeaderHeight!.constant > minHeight ? true : false
     }
 }
 

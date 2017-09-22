@@ -40,6 +40,13 @@ class HeaderView: UIView {
         return v
     }()
     
+    let menuContainer: UIView = {
+        let v = UIView()
+        v.backgroundColor = Theme.PRIMARY_DARK_COLOR
+        return v
+    }()
+    
+    
     // MARK: Navbar Views
     
     let collapseBtn: UIButton = {
@@ -131,9 +138,20 @@ class HeaderView: UIView {
     override var bounds: CGRect {
         didSet {
             backgroundGradient.frame = bounds
-            print("setiao")
         }
     }
+    
+    let menuView: MenuView = {
+        let mv = MenuView()
+        return mv
+    }()
+    
+    let whiteView: UIView = {
+        let wv = UIView()
+        wv.backgroundColor = .white
+        wv.alpha = 0
+        return wv
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -157,6 +175,8 @@ class HeaderView: UIView {
     
     override func layoutSubviews() {
 //                    layer.insertSublayer(backgroundGradient, at: 0)
+        addSubview(menuView)
+        _ = menuView.anchor(top: menuContainer.topAnchor, bottom: menuContainer.bottomAnchor, right: menuContainer.rightAnchor, left: menuContainer.leftAnchor)
     }
     
     func setupViews() {
@@ -164,6 +184,8 @@ class HeaderView: UIView {
         addSubview(minView)
         addSubview(medView)
         addSubview(maxView)
+        addSubview(menuContainer)
+        addSubview(whiteView)
         
         minView.addSubview(minIcon)
         minView.addSubview(minLabel)
@@ -180,9 +202,13 @@ class HeaderView: UIView {
         
         _ = minView.anchor(top: collapseBtn.bottomAnchor, bottom: nil, right: rightAnchor, left: leftAnchor, topConstant: containerPadding, bottomConstant: 0, rightConstant: containerPadding, leftConstant: containerPadding, widthConstant: 0, heightConstant: containersHeight)
         
-        _ = medView.anchor(top: minView.bottomAnchor, bottom: nil, right: rightAnchor, left: leftAnchor, topConstant: containerPadding, bottomConstant: 0, rightConstant: containerPadding, leftConstant: containerPadding, widthConstant: 0, heightConstant: containersHeight)
+        _ = medView.anchor(top: minView.bottomAnchor, bottom: nil, right: minView.rightAnchor, left: minView.leftAnchor, topConstant: containerPadding, bottomConstant: 0, rightConstant: 0, leftConstant: 0, widthConstant: 0, heightConstant: containersHeight)
         
-        _ = maxView.anchor(top: medView.bottomAnchor, bottom: nil, right: rightAnchor, left: leftAnchor, topConstant: containerPadding, bottomConstant: containerPadding, rightConstant: containerPadding, leftConstant: containerPadding, widthConstant: 0, heightConstant: containersHeight)
+        _ = maxView.anchor(top: medView.bottomAnchor, bottom: nil, right: minView.rightAnchor, left: minView.leftAnchor, topConstant: containerPadding, bottomConstant: 0, rightConstant: 0, leftConstant: 0, widthConstant: 0, heightConstant: containersHeight)
+        
+        _ = menuContainer.anchor(top: nil, bottom: bottomAnchor, right: minView.rightAnchor, left: minView.leftAnchor, topConstant: 0, bottomConstant: 0, rightConstant: 0, leftConstant: 0, widthConstant: 0, heightConstant: containersHeight)
+        
+        _ = whiteView.anchor(top: topAnchor, bottom: bottomAnchor, right: rightAnchor, left: leftAnchor, topConstant: 0, bottomConstant: 0, rightConstant: 0, leftConstant: 0, widthConstant: 0, heightConstant: 0)
         
         //Min Subviews
         
@@ -206,9 +232,10 @@ class HeaderView: UIView {
         
         _ = maxLabel.anchor(top: maxView.topAnchor, bottom: maxView.bottomAnchor, right: maxView.rightAnchor, left: maxIcon.rightAnchor, topConstant: 0, bottomConstant: 0, rightConstant: 0, leftConstant: 5, widthConstant: 0, heightConstant: 0)
         
+        
     }
     
-    func updateHeader(percentage: CGFloat) {
+    func updateHeader(percentage: CGFloat, currentHeaderHeight: CGFloat) {
         self.collapseBtnHeight?.constant = (percentage - 1) * 40 + 20 //20 es el constant por defecto, el multiplo de 40 es lo que debe subir el btn, deberia ser 20 pero puse 40 para contrarestar el 20
         UIView.animate(withDuration: 0.2, animations: {
             self.maxView.alpha = percentage
@@ -219,8 +246,12 @@ class HeaderView: UIView {
             self.minLabelCollapse.alpha = -percentage + 1
             self.minIcon.alpha = percentage
             self.minIconCollapse.alpha = -percentage + 1
-            print(percentage)
-            self.collapseBtn.alpha = percentage
+            if currentHeaderHeight <= self.medHeight {
+                let medPercentage = (currentHeaderHeight - self.minHeight) / (self.medHeight - self.minHeight)
+                self.whiteView.alpha = -medPercentage + 1
+                self.menuView.changeFontColor = medPercentage
+                
+            }
             
         })
     }
