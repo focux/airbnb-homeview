@@ -120,6 +120,21 @@ class HeaderView: UIView {
         return lbl
     }()
     
+    let backgroundGradient: CAGradientLayer = {
+        let gradient = CAGradientLayer()
+        gradient.startPoint = CGPoint(x: 0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1, y: 0.5)
+        gradient.colors = [Theme.PRIMARY_COLOR.cgColor, Theme.PRIMARY_DARK_COLOR.cgColor]
+        return gradient
+    }()
+    
+    override var bounds: CGRect {
+        didSet {
+            backgroundGradient.frame = bounds
+            print("setiao")
+        }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = Theme.PRIMARY_DARK_COLOR
@@ -138,6 +153,10 @@ class HeaderView: UIView {
         
         collapseBtn.addTarget(self, action: #selector(handleCollapse), for: .touchUpInside)
         setupViews()
+    }
+    
+    override func layoutSubviews() {
+//                    layer.insertSublayer(backgroundGradient, at: 0)
     }
     
     func setupViews() {

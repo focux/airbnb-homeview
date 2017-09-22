@@ -28,8 +28,27 @@ class HeaderController: UIViewController {
     
     // Status bar
     
+    var isHiddenStatusBar: Bool = false {
+        didSet {
+            UIView.animate(withDuration: 0.3) {
+                self.setNeedsStatusBarAppearanceUpdate()
+            }
+        }
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return isHiddenStatusBar
+    }
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
+        if currentHeaderSize == .min {
+        return .default
+        }
         return .lightContent
+    }
+    
+    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
     }
     
     let maxHeight: CGFloat = 255
@@ -97,6 +116,7 @@ extension HeaderController: UITableViewDataSource, UITableViewDelegate {
             let medMaxAverage: CGFloat = (medHeight + maxHeight) / 2
             if currentHeaderHeight!.constant < minMedAverage {
                 currentHeaderSize = .min
+                
             } else if currentHeaderHeight!.constant >= minMedAverage && currentHeaderHeight!.constant < medMaxAverage {
                 currentHeaderSize = .med
             } else if currentHeaderHeight!.constant >= medMaxAverage {
@@ -142,6 +162,9 @@ extension HeaderController: UITableViewDataSource, UITableViewDelegate {
         print(" Diferencia: \(currentHeaderHeight!.constant - medHeight)")
         let percent = (currentHeaderHeight!.constant - medHeight) / range
         headerView.updateHeader(percentage: percent)
+        
+        // Status bar
+        isHiddenStatusBar = currentHeaderHeight!.constant < (medHeight / 2) && currentHeaderHeight!.constant > 0 ? true : false
     }
 }
 
