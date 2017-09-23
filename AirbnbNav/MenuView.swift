@@ -10,6 +10,8 @@ import UIKit
 
 class MenuView: UIView {
     
+    var lineViewLeftAnchor: NSLayoutConstraint!
+    
     let menuItems: [String] = ["FOR YOU", "HOMES", "EXPERIENCE", "PLACES"]
     
     fileprivate var fontColor: UIColor = UIColor(white: 1, alpha: 1) {
@@ -31,6 +33,12 @@ class MenuView: UIView {
         return cv
     }()
     
+    let lineView: UIView = {
+        let lv = UIView()
+        lv.backgroundColor = .white
+        return lv
+    }()
+    
     let cellId = "menuCell"
     
     override init(frame: CGRect) {
@@ -39,18 +47,27 @@ class MenuView: UIView {
         
         collectionView.register(MenuCell.self, forCellWithReuseIdentifier: cellId)
         collectionView.backgroundColor = .clear
-        
-        print("menuview")
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        print(frame.width)
+        lineView.widthAnchor.constraint(equalToConstant: frame.size.width / 4).isActive = true
+    }
+    
     func setupViews() {
         addSubview(collectionView)
+        addSubview(lineView)
+        bringSubview(toFront: lineView)
         
         _ = collectionView.anchor(top: topAnchor, bottom: bottomAnchor, right: rightAnchor, left: leftAnchor)
+        
+        lineViewLeftAnchor = lineView.anchor(top: nil, bottom: bottomAnchor, right: nil, left: leftAnchor, topConstant: 0, bottomConstant: 0, rightConstant: 0, leftConstant: 0, widthConstant: 0, heightConstant: 1.5)[1]
+        
+        
     }
 }
 
@@ -75,5 +92,13 @@ extension MenuView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print(frame.size.width / 4 * CGFloat(indexPath.item))
+        self.lineViewLeftAnchor.constant = frame.size.width / 4 * CGFloat(indexPath.item)
+        UIView.animate(withDuration: 0.7, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+            self.layoutIfNeeded()
+        }, completion: nil)
     }
 }
